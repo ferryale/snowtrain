@@ -1,0 +1,18 @@
+[package]
+name = "snowtrain"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rayon = "1.8"
+cozy-chess = "0.3.3"
+rand = "0.8.5"
+shakmaty =  { version = "0.26.0"}
+shakmaty-syzygy = { version = "0.24.0"}
+pyo3 = { version = "0.20", features = ["extension-module"] }
+
+[lib]
+name = "snowtrain"
+path = "src/lib.rs"  # Specify the path to your library code
