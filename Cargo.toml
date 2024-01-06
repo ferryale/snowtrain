@@ -12,6 +12,7 @@ rand = "0.8.5"
 shakmaty =  { version = "0.26.0"}
 shakmaty-syzygy = { version = "0.24.0"}
 pyo3 = { version = "0.20", features = ["extension-module"] }
+itertools = "0.12.0"
 
 [lib]
 name = "snowtrain"
