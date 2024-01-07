@@ -4,6 +4,8 @@ use cozy_chess::{BitBoard, Board, BoardBuilder, BoardBuilderError, Color, Square
 use rand::Rng;
 use std::collections::HashSet;
 type GenericError = Box<dyn std::error::Error>;
+use crate::compression::AnnotatedBoard;
+use crate::score::*;
 
             
 use shakmaty::{CastlingMode, Chess, fen::Fen, Position};
@@ -137,38 +139,44 @@ impl Generator {
 
     }
 
-    pub fn gen_boards(&self, num_boards: usize) -> Result<(), GenericError>{
-
+    pub fn gen_boards(&self, num_boards: usize) -> Result<Vec<AnnotatedBoard>, GenericError>{
+        let mut ann_boards = Vec::new();
         let mut rng = rand::thread_rng();
-        let mut tables = Tablebase::new();
+        let mut tables: Tablebase<Chess> = Tablebase::new();
         tables.add_directory("3_4_5")?;
-
-        
-
-        
 
         for idx in 0..num_boards {
             if let Some(board) = self.gen_board(&mut rng) {
-                let pos: Chess = format!("{}", board)
+                let result_pos: Result<Chess, shakmaty::PositionError<_>> = format!("{}", board)
                 .parse::<Fen>()?
-                .into_position(CastlingMode::Standard)?;
-                
+                .into_position(CastlingMode::Standard);
 
-                let wdl = tables.probe_wdl_after_zeroing(&pos)?;
+                match result_pos{
+                    Ok(pos) => {
+                        let wdl = tables.probe_wdl_after_zeroing(&pos)?;
 
-                let dtz = tables.probe_dtz(&pos)?;
+                        let dtz = tables.probe_dtz(&pos)?;
+        
+                        println!("{:?} {:?} {:?}", format!("{}", board), wdl, dtz);
+                        let wdl_f32 = wdl_to_f32(wdl, board.side_to_move());
+                        let dtz_f32 = dtz_to_f32(dtz, wdl, board.side_to_move());
+                        ann_boards.push(AnnotatedBoard::new(board, dtz_f32, wdl_f32));
+                        println!("{:?} {:?} {}", wdl, dtz, dtz_f32);
 
-                println!("{:?} {:?} {:?}", format!("{}", board), wdl, dtz);
-
-            } else {
-                println!("Nonw")
-            }  
+                        //println!("{:?}", format!("{}", board));
+                    },
+                    Err(e) => {
+                        let fen = format!("{}", board);
+                        println!("{e} {fen}")
+                    }
+                }
+            }
         }
 
-        Ok(())
-            
-
+        Ok(ann_boards)
     }
+
+    
 
 }
 

@@ -36,7 +36,7 @@ fn piece_value(piece: Piece) -> u32 {
 fn main() {
     let pieces = [Piece::Pawn, Piece::Knight, Piece::Bishop, Piece::Rook, Piece::Queen];
     let generator = Generator::new(3, 2, 2, 2);
-    generator.gen_boards(100);
+    let v = generator.gen_boards(100);
     
     //let perm: Vec<Vec<Piece>> = pieces.into_iter().combinations_with_replacement(6).collect();
     //     el.iter().map(|&p| piece_value(*p)).sum::<u32>()
